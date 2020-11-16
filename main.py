@@ -16,7 +16,7 @@ def create_agent_db(cur):
 def create_contract_db(cur):
     """
     создание таблицы Contracts которая содержит
-    данные о договоре с привязкой к контранету
+    данные о договоре с привязкой к контрагенту
     """
 
     # создаем таблицу Contracts, если такой еще нет
@@ -87,7 +87,7 @@ def show_all(cur):
     print(f'\n{relations}\n')
 
 
-if __name__ == '__main__':
+def main():
     conn = pg.connect(dbname='contracts_db', user='contracts_admin', password='1234')
     conn.set_session(autocommit=True)  # чтобы не делать conn.commit() каждый раз
     cur = conn.cursor()
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # show_all(cur)
 
     while True:
-        chouse = input('Выберите действие:\n' \
+        choose = input('Выберите действие:\n' \
                        '1. Добавить контрагента\n' \
                        '2. Добавить договор\n' \
                        '3. Посмотреть список контрагентов\n' \
@@ -113,23 +113,27 @@ if __name__ == '__main__':
                        '5. Вывести всю информацию\n'
                        )
 
-        if chouse == 'q':
+        if choose == 'q':
             break
-        elif chouse == '1':
+        elif choose == '1':
             name = input('Введите имя контрагета: ')
             insert_new_agent(name, cur)
-        elif chouse == '2':
+        elif choose == '2':
             agent_id = int(input('Введите id контрагента: '))
             number = input('Введите номер договора: ')
             description = input('Введите описание договора: ')
             insert_new_contract(agent_id, number, description, cur)
-        elif chouse == '3':
+        elif choose == '3':
             show_all_agents(cur)
-        elif chouse == '4':
+        elif choose == '4':
             show_all_contracts(cur)
-        elif chouse == '5':
+        elif choose == '5':
             show_all(cur)
         else:
             print('Введена не верная команда. Попробуйте еще раз\n')
 
     conn.close()
+
+
+if __name__ == '__main__':
+    main()
