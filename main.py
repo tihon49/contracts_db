@@ -1,7 +1,7 @@
 import psycopg2 as pg
 
 
-def create_agent_db(cur):
+def create_agent_table(cur):
     """Создание таблицы Agents"""
 
     # создаем таблицу Agents, если такой еще нет
@@ -13,7 +13,7 @@ def create_agent_db(cur):
     """)
 
 
-def create_contract_db(cur):
+def create_contract_table(cur):
     """
     создание таблицы Contracts которая содержит
     данные о договоре с привязкой к контрагенту
@@ -23,9 +23,25 @@ def create_contract_db(cur):
     cur.execute("""
         create table if not exists Contracts(
             id serial primary key,
-            agent_id integer references agents(id),
+            agent_id integer references agents(id) on delete cascade,
             number varchar(24) not null,
             description varchar(128)
+        );
+    """)
+
+
+def create_bills_table(cur):
+    """создание таблицы счетов Bills"""
+
+    cur.execute("""
+        create table if not exists Bills(
+            id serial primary key,
+            contract_id integer references contracts(id) on delete cascade,
+            bill_number varchar(24) not null,
+            act_number varchar(24) not null,
+            sum integer not null,
+            bill_date date not null,
+            act_date date null
         );
     """)
 
@@ -64,7 +80,12 @@ def show_all_agents(cur):
 
     cur.execute("select * from Agents")
     agents = cur.fetchall()
-    print(f'\n{agents}\n')
+
+    for agent in agents:
+        id_ = agent[0]
+        name = agent[1]
+        print(f'id: {id_} name: {name}')
+    print()
 
 
 def show_all_contracts(cur):
@@ -72,19 +93,50 @@ def show_all_contracts(cur):
 
     cur.execute("select * from Contracts")
     contracts = cur.fetchall()
-    print(f'\n{contracts}\n')
+
+    for contract in contracts:
+        id_ = contract[0]
+        agent_id = contract[1]
+        contract_number = contract[2]
+        description = contract[3]
+        print(f'id: {id_}  agent_id:{agent_id}  contract_number: {contract_number}\n'
+              f'description: {description}\n')
+    print()
+
+
+def show_all_bills(cur):
+    """Вывод всех счетов"""
+
+    cur.execute('select * from Bills')
+    all_bills = cur.fetchall()
+
+    for bill in all_bills:
+        print(bill)
+    print()
 
 
 def show_all(cur):
     """Вывод сводной (JOIN) информации из таблиц Agents и Contracts"""
 
     cur.execute("""
-        select * from Agents as a
-        join Contracts c
-        on c.agent_id = a.id 
+        select c.id, name, agent_id, number, description 
+        from contracts as c
+        join Agents a
+        on c.agent_id = a.id
     """)
     relations = cur.fetchall()
-    print(f'\n{relations}\n')
+
+    for item in relations:
+        id_ = item[0]
+        agent_name = item[1]
+        agent_id = item[2]
+        contract_number = item[4]
+        description = item[5]
+        print(f'id: {id_}, agent_name: {agent_name}, agent_id: {agent_id}\n'
+              f'description: {description}\n, '
+              f'contract_number: {contract_number}')
+        print()
+    print()
 
 
 def main():
@@ -92,25 +144,18 @@ def main():
     conn.set_session(autocommit=True)  # чтобы не делать conn.commit() каждый раз
     cur = conn.cursor()
 
-    create_agent_db(cur)
-    create_contract_db(cur)
-
-    # insert_new_agent('ООО ПримаМедика', cur)
-    # insert_new_contract(1, '745-20', 'Термометрия сотрудникам и посетителям НИИСИ РАН', cur)
-    # print('Все контрагеты:')
-    # show_all_agents(cur)
-    # print('Все договоры:')
-    # show_all_contracts(cur)
-    # print('Полные данные:')
-    # show_all(cur)
+    create_agent_table(cur)
+    create_contract_table(cur)
+    create_bills_table(cur)
 
     while True:
-        choose = input('Выберите действие:\n' \
-                       '1. Добавить контрагента\n' \
-                       '2. Добавить договор\n' \
-                       '3. Посмотреть список контрагентов\n' \
-                       '4. Посмотреть список договоров\n' \
-                       '5. Вывести всю информацию\n'
+        choose = input('Выберите действие:\n'
+                       '1. Добавить контрагента\n'
+                       '2. Добавить договор\n'
+                       '3. Посмотреть список контрагентов\n'
+                       '4. Посмотреть список договоров\n'
+                       '5. Посмотреть все счета\n'
+                       '6. Вывести всю информацию\n'
                        )
 
         if choose == 'q':
@@ -128,6 +173,8 @@ def main():
         elif choose == '4':
             show_all_contracts(cur)
         elif choose == '5':
+            show_all_bills(cur)
+        elif choose == '6':
             show_all(cur)
         else:
             print('Введена не верная команда. Попробуйте еще раз\n')
