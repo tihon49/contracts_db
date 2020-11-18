@@ -1,22 +1,20 @@
-import sqlalchemy as sa
+import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
-engine = sa.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')  # 60557
+engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')  # 60557
 connection = engine.connect()
 Base = declarative_base()
 session = sessionmaker(bind=engine)()
 
 
-def choose_table_to_show(choose_number:str):
+def choose_table_to_show(choose_number: str):
     """выдаем queryset указанной таблицы"""
 
     if choose_number == '1':
         table = Agent
     elif choose_number == '2':
-        table = Contracts
-    elif choose_number == '3':
-        table = User
+        table = Contract
     elif choose_number == 'q':
         return
     else:
@@ -28,43 +26,50 @@ def choose_table_to_show(choose_number:str):
         print(item)
 
 
-class User(Base):
-    """таблица users"""
-
-    __tablename__ = 'users'
-
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String)
-    fullname = sa.Column(sa.String)
-    nickname = sa.Column(sa.String)
-
-    def __repr__(self):
-        return "<User(name='%s', fullname='%s', nickname='%s')>" % (self.name, self.fullname, self.nickname)
-
-
 class Agent(Base):
     """таблица agents"""
 
     __tablename__ = 'agents'
-    id = sa.Column(sa.Integer, primary_key=True)
-    name = sa.Column(sa.String(48))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(48))
 
     def __repr__(self):
         return f'<Agent(name="{self.name}")>'
 
 
-class Contracts(Base):
+class Contract(Base):
     """таблица с договорами contracts"""
 
     __tablename__ = 'contracts'
 
-    id = sa.Column(sa.Integer, primary_key=True)
-    agent_id = sa.Column(sa.Integer, sa.ForeignKey('agent.id'), nullable=False)
-    number = sa.Column(sa.String(24), nullable=False)
-    description = sa.Column(sa.String(128), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'), nullable=False)
+    number = db.Column(db.String(24), nullable=False)
+    description = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
-        return f'<Contract(id="{self.id}", agent_id="{self.agent_id}", number="{self.number}"\ndescription: {self.description})>\n'
+        return f'<Contract(id="{self.id}", agent_id="{self.agent_id}", number="{self.number}"\n' \
+               f'description: {self.description})>\n'
+
+
+class Bill(Base):
+    """таблица счетов bills"""
+
+    __tablename__ = 'bills'
+
+    id = db.Column(db.Integer, primary_key=True)
+    contract_id = db.Column(db.ForeignKey('contract.id'), nullable=False)
+    bill_number = db.Column(db.String(24), nullable=False)
+    act_number = db.Column(db.String(24), nullable=False)
+    bill_sum = db.Column(db.Integer, nullable=False)
+    act_sum = db.Column(db.Integer, nullable=False)
+    bill_date = db.Column(db.Date)
+    act_date = db.Column(db.Date)
+
+    def __repr__(self):
+        return f'<Bill(id="{self.id}", contract_id="{self.contract_id}", bill_number="{self.bill_number}", ' \
+               f'act_number="{self.act_number}"\nbill_sum="{self.bill_sum}", act_sum="{self.act_sum}", ' \
+               f'bill_date="{self.bill_date}", act_date="{self.act_date}")>'
 
 
 def main():
@@ -78,14 +83,9 @@ def main():
         choose = input()
 
         if choose == '1':
-            name = input('Enter a name: ')
-            fullname = input('Enter a fullname: ')
-            nickname = input('Enter a nickname: ')
-            new_user = User(name=name, fullname=fullname, nickname=nickname)
-            session.add(new_user)
-            session.commit()
+            pass
         elif choose == '2':
-            choose_number = input('\n1. Все агенты\n2. Все договоры\n3. Все пользователи\nq. Назад')
+            choose_number = input('\n1. Все агенты\n2. Все договоры\nq. Назад\n')
             choose_table_to_show(choose_number)
         elif choose == 'q':
             break
