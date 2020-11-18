@@ -26,6 +26,33 @@ def add_agent():
     return
 
 
+def add_contract():
+    """добавление контракта"""
+
+    agent_id = int(input('id агента: '))
+
+    # проверка на правильнось введеного id агента
+    agent_query = session.query(Agent).filter_by(id=agent_id).all()
+    if agent_query:
+        print(f'Выбран контрагент: {agent_query[0]}')
+    else:
+        print('Не вероно указан id агента...\n')
+        return
+
+    number = input('Номер договора: ')
+    contract_query = session.query(Contract).filter_by(agent_id=agent_id, number=number).all()
+    if contract_query:
+        print(f'У контрагента {agent_query[0]} уже есть договор {contract_query[0]}')
+        return
+
+    description = input('Краткое описание договора: ')
+
+    new_contract = Contract(agent_id=agent_id, number=number, description=description)
+    session.add(new_contract)
+    session.commit()
+    print(f'Договор №{number} добавлен\n')
+
+
 def choose_table_to_show(choose_number: str):
     """выдаем queryset указанной таблицы"""
 
@@ -57,11 +84,19 @@ def main():
         choose = input()
 
         if choose == '1':
-            # choose_number = input('\n1. Новый агент\n'
-            #                       '2. Новый договор\n'
-            #                       '3. Новый счет\n'
-            #                       'q. Назад\n')
-            add_agent()
+            choose_number = input('\n1. Добавить агента\n'
+                                  '2. Добавить договор\n'
+                                  '3. Добавить счет\n'
+                                  'q. Назад\n')
+            if choose_number == '1':
+                add_agent()
+            elif choose_number == '2':
+                add_contract()
+            elif choose_number == '3':
+                pass
+            else:
+                print('Не верная команда')
+
         elif choose == '2':
             choose_number = input('\n1. Все агенты\n'
                                   '2. Все договоры\n'
