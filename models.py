@@ -1,12 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy as db
-from sqlalchemy.orm import sessionmaker
 
 engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')  # 60557
 connection = engine.connect()
 
 Base = declarative_base()
-session = sessionmaker(bind=engine)()
 
 
 class Agent(Base):
@@ -31,7 +29,7 @@ class Contract(Base):
     description = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
-        return f'<Contract(id="{self.id}", agent_id="{self.agent_id}", number="{self.number}"\n' \
+        return f'<Contract(id="{self.id}", agent_id="{self.agent_id}", number="{self.number}", ' \
                f'description: {self.description})>\n'
 
 
@@ -58,3 +56,7 @@ class Bill(Base):
 def create_tales():
     Base.metadata.create_all(engine)
     return
+
+
+def delete_all_tables():
+    Base.metadata.drop_all(bind=engine)

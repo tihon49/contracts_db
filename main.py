@@ -2,7 +2,7 @@ import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
-from models import Agent, Contract, Bill, create_tales
+from models import Agent, Contract, Bill, create_tales, delete_all_tables
 
 engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')  # 60557
 connection = engine.connect()
@@ -71,24 +71,23 @@ def add_bill():
     print(f'Добавлен счет {bills_query[0]}')
     # TODO: проверку данных на валидность
 
-def choose_table_to_show(choose_number: str):
+
+def choose_table_to_show(choose_number):
     """выдаем queryset указанной таблицы"""
 
     if choose_number == '1':
-        table = Agent
+        print(session.query(Agent).all())
     elif choose_number == '2':
-        table = Contract
+        print(session.query(Contract).all())
     elif choose_number == '3':
-        table = Bill
+        print(session.query(Bill).all())
     elif choose_number == 'q':
         return
     else:
         print('Не верная команда\n')
         return
 
-    query = session.query(table).all()
-    for item in query:
-        print(item)
+
 
 
 def main():
@@ -97,6 +96,7 @@ def main():
     while True:
         print('1. Внести данные в таблицы\n'
               '2. Поиск по таблицам\n'
+              '3. Удалить все таблицы\n'
               'q. выйти\n')
 
         choose = input()
@@ -123,6 +123,12 @@ def main():
                                   '3. Все счета\n'
                                   'q. Назад\n')
             choose_table_to_show(choose_number)
+        elif choose == '3':
+            confirm = input('Вы точно уверены что хотите удалить все таблицы? (y/n): ')
+            if confirm == 'y' or connection == 'yes':
+                delete_all_tables()
+            else:
+                pass
         elif choose == 'q':
             break
 
