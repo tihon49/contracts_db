@@ -53,6 +53,24 @@ def add_contract():
     print(f'Договор №{number} добавлен\n')
 
 
+def add_bill():
+    """добавление счета"""
+
+    contract_id = int(input('id Договора: '))
+    bill_number = input('Номер счета: ')
+    act_number = input('Номер акта: ')
+    bill_sum = int(input('Сумма счета: '))
+    act_sum = int(input('Сумма акта: '))
+
+    new_bill = Bill(contract_id=contract_id, bill_number=bill_number,
+                    act_number=act_number, bill_sum=bill_sum, act_sum=act_sum)
+    session.add(new_bill)
+    session.commit()
+
+    bills_query = session.query(Bill).filter_by(contract_id=contract_id, bill_number=bill_number).all()
+    print(f'Добавлен счет {bills_query[0]}')
+    # TODO: проверку данных на валидность
+
 def choose_table_to_show(choose_number: str):
     """выдаем queryset указанной таблицы"""
 
@@ -93,6 +111,8 @@ def main():
             elif choose_number == '2':
                 add_contract()
             elif choose_number == '3':
+                add_bill()
+            elif choose_number == 'q':
                 pass
             else:
                 print('Не верная команда')
