@@ -4,7 +4,7 @@ from sqlalchemy.orm.session import sessionmaker
 
 from models import Agent, Contract, Bill, create_tales, delete_all_tables
 
-engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')  # 60557
+engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')
 connection = engine.connect()
 Base = declarative_base()
 session = sessionmaker(bind=engine)()
