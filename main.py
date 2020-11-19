@@ -2,7 +2,7 @@ import sqlalchemy as db
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import sessionmaker
 
-from models import Agent, Contract, create_tales, delete_all_tables
+from models import Agent, Contract, Bill, create_tales, delete_all_tables
 
 engine = db.create_engine('postgresql+psycopg2://contracts_admin:1234@localhost:5432/contracts_db')
 connection = engine.connect()
@@ -53,6 +53,32 @@ def add_contract():
     print(f'Договор №{number} добавлен\n')
 
 
+def add_bill():
+    """добавление счета"""
+
+    agent_id = int(input('id контрагента: '))
+    contract_number = input('Номер договора: ')
+    contract = session.query(Contract).filter_by(agent_id=agent_id, number=contract_number).first()
+
+    if not contract:
+        print('Не верно указан id или номер договора')
+        return
+
+    bill_number = input('Номер счета: ')
+
+    if bill_number not in contract.bills:
+        act_number = input('Номер акта: ')
+        bill_sum = int(input('Сумма счета: '))
+        act_sum = int(input('Сумма акта: '))
+
+        new_bill = Bill(agent_id=agent_id, contract_number=contract_number, bill_number=bill_number,
+                        act_number=act_number, bill_sum=bill_sum, act_sum=act_sum)
+        session.add(new_bill)
+        session.commit()
+
+    return
+
+
 def choose_table_to_show(choose_number):
     """выдаем queryset указанной таблицы"""
 
@@ -60,6 +86,8 @@ def choose_table_to_show(choose_number):
         print(session.query(Agent).all())
     elif choose_number == '2':
         print(session.query(Contract).all())
+    elif choose_number == '3':
+        print(session.query(Bill).all())
     elif choose_number == 'q':
         return
     else:
@@ -81,11 +109,14 @@ def main():
         if choose == '1':
             choose_number = input('\n1. Добавить агента\n'
                                   '2. Добавить договор\n'
+                                  '3. Добавить счет\n'
                                   'q. Назад\n')
             if choose_number == '1':
                 add_agent()
             elif choose_number == '2':
                 add_contract()
+            elif choose_number == '3':
+                add_bill()
             elif choose_number == 'q':
                 pass
             else:
@@ -94,6 +125,7 @@ def main():
         elif choose == '2':
             choose_number = input('\n1. Все агенты\n'
                                   '2. Все договоры\n'
+                                  '3. Все счета\n'
                                   'q. Назад\n')
             choose_table_to_show(choose_number)
         elif choose == '3':
