@@ -35,7 +35,7 @@ class Contract(Base):
 
     def __repr__(self):
         return f'<Contract(agent_id="{self.agent_id}", number="{self.number}", ' \
-               f'description: {self.description})>\n'
+               f'description: {self.description})>'
 
 
 class Bill(Base):
@@ -43,6 +43,7 @@ class Bill(Base):
 
     __tablename__ = 'bills'
 
+    bill_id = db.Column(db.Integer, autoincrement=True)
     agent_id = db.Column(db.Integer, nullable=False)
     contract_number = db.Column(db.String, nullable=False)
     bill_number = db.Column(db.String, nullable=False)
@@ -54,7 +55,7 @@ class Bill(Base):
                       db.PrimaryKeyConstraint(contract_number, bill_number))
 
     def __repr__(self):
-        return f'<agent_id="{self.agent_id}", contract_number="{self.contract_number}", ' \
+        return f'<Bill(bill_id="{self.bill_id}, "agent_id="{self.agent_id}", contract_number="{self.contract_number}", ' \
                f'bill_number="{self.bill_number}", act_number="{self.act_number}", ' \
                f'bill_sum="{self.bill_sum}", act_sum="{self.act_sum}")>'
 
