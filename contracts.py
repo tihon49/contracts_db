@@ -84,9 +84,9 @@ def add_bill():
 
 def show_full_data():
     """Получаем полные данные по контрагентам"""
-    # TODO: сделать правильный JOIN
 
-    query = session.query(Agent, Contract).all()
+    # query = s.query(Agent, Con, Bill).filter(Agent.id==Con.agent_id).filter(Con.number==Bill.contract_number).all()
+    query = session.query(Agent, Contract).filter(Agent.id == Contract.agent_id).all()
     return query
 
 
