@@ -50,16 +50,6 @@
       <string>1</string>
      </property>
     </row>
-    <row>
-     <property name="text">
-      <string>New Row</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>New Row</string>
-     </property>
-    </row>
     <column>
      <property name="text">
       <string>id</string>
